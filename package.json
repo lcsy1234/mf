@@ -1,0 +1,17 @@
+{
+  "name": "mf-demo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "start": "concurrently -n remote,remote-b,host -c blue,magenta,green \"npm run start -w @mf/remote\" \"npm run start -w @mf/remote-b\" \"npm run start -w @mf/host\"",
+    "start:host": "npm run start -w @mf/host",
+    "start:remote": "npm run start -w @mf/remote",
+    "start:remote-b": "npm run start -w @mf/remote-b",
+    "build": "npm run build -w @mf/remote && npm run build -w @mf/remote-b && npm run build -w @mf/host"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
