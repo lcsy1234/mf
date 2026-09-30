@@ -8,10 +8,22 @@ const shared = {
   react: {
     singleton: true,
     requiredVersion: deps.react,
+    eager: true,
   },
   'react-dom': {
     singleton: true,
     requiredVersion: deps['react-dom'],
+    eager: true,
+  },
+  'react/jsx-runtime': {
+    singleton: true,
+    requiredVersion: deps.react,
+    eager: true,
+  },
+  'react/jsx-dev-runtime': {
+    singleton: true,
+    requiredVersion: deps.react,
+    eager: true,
   },
 };
 
@@ -22,6 +34,7 @@ module.exports = {
     filename: '[name].[contenthash].js',
     publicPath: 'auto',
     clean: true,
+    crossOriginLoading: 'anonymous',
   },
   resolve: {
     extensions: ['.js', '.jsx'],
@@ -38,19 +51,21 @@ module.exports = {
   plugins: [
     new ModuleFederationPlugin({
       name: 'hostApp',
-      remotes: {
-        remoteApp: 'remoteApp@http://localhost:3001/remoteEntry.js',
-        remoteB: 'remoteB@http://localhost:2222/remoteEntry.js',
-      },
+      // remotes 改为运行时动态加载，见 src/remotes.js + src/loadRemote.jsx
+      remotes: {},
       shared,
     }),
     new HtmlWebpackPlugin({
       template: './public/index.html',
+      chunks: ['main'],
     }),
   ],
   devServer: {
     port: 5680,
     historyApiFallback: true,
     hot: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
   },
 };

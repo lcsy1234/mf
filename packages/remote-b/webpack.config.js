@@ -13,6 +13,14 @@ const shared = {
     singleton: true,
     requiredVersion: deps['react-dom'],
   },
+  'react/jsx-runtime': {
+    singleton: true,
+    requiredVersion: deps.react,
+  },
+  'react/jsx-dev-runtime': {
+    singleton: true,
+    requiredVersion: deps.react,
+  },
 };
 
 module.exports = {
@@ -20,8 +28,9 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].[contenthash].js',
-    publicPath: 'auto',
+    publicPath: 'http://localhost:2222/',
     clean: true,
+    crossOriginLoading: 'anonymous',
   },
   resolve: {
     extensions: ['.js', '.jsx'],
@@ -46,12 +55,15 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       template: './public/index.html',
+      chunks: ['main'],
     }),
   ],
   devServer: {
     port: 2222,
     historyApiFallback: true,
-    hot: true,
+    hot: false,
+    liveReload: false,
+    client: false,
     headers: {
       'Access-Control-Allow-Origin': '*',
     },

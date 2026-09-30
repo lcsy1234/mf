@@ -65,11 +65,11 @@ npm run build
 ## 运作方式（简要）
 
 1. **Remote A / B** 各自通过 `ModuleFederationPlugin` 暴露 `./Widget`，产出 `remoteEntry.js`
-2. **Host** 静态注册：
-   - `remoteApp@http://localhost:3001/remoteEntry.js`
-   - `remoteB@http://localhost:2222/remoteEntry.js`
-3. Host 顶栏菜单切换后，`React.lazy(() => import('remoteApp/Widget'))` 或 `import('remoteB/Widget')` 拉取对应模块
-4. `react` / `react-dom` 配置为 `singleton: true`，避免 hooks 失效
+2. **Host** 不再在 webpack 里写死 `remotes`；清单在 `packages/host/src/remotes.js`
+3. 菜单切换时，运行时注入对应 `remoteEntry.js`，再 `container.get('./Widget')` 取模块
+4. `react` / `react-dom` / `jsx-runtime` 配置为 `singleton: true`，避免 hooks 失效
+
+新增 Remote：在 `remotes.js` 加一条配置即可，不必改 `webpack.config.js`。
 
 ## 常用脚本
 

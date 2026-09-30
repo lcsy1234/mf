@@ -13,6 +13,14 @@ const shared = {
     singleton: true,
     requiredVersion: deps['react-dom'],
   },
+  'react/jsx-runtime': {
+    singleton: true,
+    requiredVersion: deps.react,
+  },
+  'react/jsx-dev-runtime': {
+    singleton: true,
+    requiredVersion: deps.react,
+  },
 };
 
 module.exports = {
@@ -20,8 +28,10 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].[contenthash].js',
-    publicPath: 'auto',
+    // 固定 publicPath，避免 Host 加载远程 chunk 时解析错域名
+    publicPath: 'http://localhost:3001/',
     clean: true,
+    crossOriginLoading: 'anonymous',
   },
   resolve: {
     extensions: ['.js', '.jsx'],
@@ -46,12 +56,16 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       template: './public/index.html',
+      chunks: ['main'],
     }),
   ],
   devServer: {
     port: 3001,
     historyApiFallback: true,
-    hot: true,
+    // 禁止把 WDS client 注入 remoteEntry，否则 Host 加载后会弹出跨域 Script error overlay
+    hot: false,
+    liveReload: false,
+    client: false,
     headers: {
       'Access-Control-Allow-Origin': '*',
     },

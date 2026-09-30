@@ -1,13 +1,11 @@
 import React, { Suspense, useMemo, useState } from 'react';
 import { Layout, Menu, Typography, theme } from 'antd';
 import { loadRemoteWidget } from './loadRemote';
+import { REMOTES, getRemote } from './remotes';
 
 const { Header, Content } = Layout;
 
-const MENU_ITEMS = [
-  { key: 'remote-a', label: 'Remote A (:3001)' },
-  { key: 'remote-b', label: 'Remote B (:2222)' },
-];
+const MENU_ITEMS = REMOTES.map(({ key, label }) => ({ key, label }));
 
 class RemoteErrorBoundary extends React.Component {
   constructor(props) {
@@ -32,7 +30,8 @@ class RemoteErrorBoundary extends React.Component {
 }
 
 export default function App() {
-  const [activeRemote, setActiveRemote] = useState('remote-a');
+  const [activeRemote, setActiveRemote] = useState(REMOTES[0].key);
+  const current = getRemote(activeRemote);
   const RemoteWidget = useMemo(() => loadRemoteWidget(activeRemote), [activeRemote]);
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -63,10 +62,10 @@ export default function App() {
           }}
         >
           <Typography.Title level={3} style={{ marginTop: 0 }}>
-            {activeRemote === 'remote-a' ? 'Remote A' : 'Remote B'}
+            {current?.title || activeRemote}
           </Typography.Title>
           <Typography.Paragraph type="secondary">
-            通过顶栏菜单切换独立 Module Federation 应用。
+            通过顶栏菜单动态加载 remoteEntry（无需在 webpack remotes 中写死）。
           </Typography.Paragraph>
           <RemoteErrorBoundary key={activeRemote}>
             <Suspense fallback={<Typography.Text>正在加载远程模块…</Typography.Text>}>
