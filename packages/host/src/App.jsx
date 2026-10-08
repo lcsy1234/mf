@@ -1,38 +1,23 @@
-import React, { Suspense, useMemo, useState } from 'react';
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Layout, Menu, Typography, theme } from 'antd';
-import { loadRemoteWidget } from './loadRemote';
-import { REMOTES, getRemote } from './remotes';
+import RemotePage from './pages/RemotePage';
+
+const Home = lazy(() => import('./pages/Home'));
+const About = lazy(() => import('./pages/About'));
 
 const { Header, Content } = Layout;
 
-const MENU_ITEMS = REMOTES.map(({ key, label }) => ({ key, label }));
+const MENU_ITEMS = [
+  { key: '/', label: 'Home' },
+  { key: '/about', label: 'About' },
+  { key: '/remote-a', label: 'Remote A (:3001)' },
+  { key: '/remote-b', label: 'Remote B (:2222)' },
+];
 
-class RemoteErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <Typography.Text type="danger">
-          Remote Widget 加载失败。请确认对应 remote 已启动（A:3001 / B:2222）。
-        </Typography.Text>
-      );
-    }
-    return this.props.children;
-  }
-}
-
-export default function App() {
-  const [activeRemote, setActiveRemote] = useState(REMOTES[0].key);
-  const current = getRemote(activeRemote);
-  const RemoteWidget = useMemo(() => loadRemoteWidget(activeRemote), [activeRemote]);
+function AppLayout() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -46,9 +31,9 @@ export default function App() {
         <Menu
           theme="dark"
           mode="horizontal"
-          selectedKeys={[activeRemote]}
+          selectedKeys={[location.pathname]}
           items={MENU_ITEMS}
-          onClick={({ key }) => setActiveRemote(key)}
+          onClick={({ key }) => navigate(key)}
           style={{ flex: 1, minWidth: 0 }}
         />
       </Header>
@@ -61,19 +46,24 @@ export default function App() {
             maxWidth: 720,
           }}
         >
-          <Typography.Title level={3} style={{ marginTop: 0 }}>
-            {current?.title || activeRemote}
-          </Typography.Title>
-          <Typography.Paragraph type="secondary">
-            通过顶栏菜单动态加载 remoteEntry（无需在 webpack remotes 中写死）。
-          </Typography.Paragraph>
-          <RemoteErrorBoundary key={activeRemote}>
-            <Suspense fallback={<Typography.Text>正在加载远程模块…</Typography.Text>}>
-              <RemoteWidget />
-            </Suspense>
-          </RemoteErrorBoundary>
+          <Suspense fallback={<Typography.Text>页面加载中…</Typography.Text>}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/remote-a" element={<RemotePage remoteKey="remote-a" />} />
+              <Route path="/remote-b" element={<RemotePage remoteKey="remote-b" />} />
+            </Routes>
+          </Suspense>
         </div>
       </Content>
     </Layout>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppLayout />
+    </BrowserRouter>
   );
 }
