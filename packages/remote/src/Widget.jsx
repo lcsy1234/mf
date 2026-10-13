@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import TaskRecords from './pages/TaskRecords';
+import Templates from './pages/Templates';
 
 export default function Widget() {
-  const [count, setCount] = useState(0);
-
   return (
     <div
       style={{
@@ -15,9 +16,12 @@ export default function Widget() {
       <p style={{ marginTop: 0 }}>
         我是 <strong>Remote A</strong> 暴露的 <code>Widget</code>（端口 3001）。
       </p>
-      <button type="button" onClick={() => setCount((c) => c + 1)}>
-        Remote A 点击次数：{count}
-      </button>
+      <Routes>
+        <Route index element={<Navigate to="tasks" replace />} />
+        <Route path="tasks" element={<TaskRecords />} />
+        <Route path="templates" element={<Templates />} />
+        <Route path="*" element={<Navigate to="tasks" replace />} />
+      </Routes>
     </div>
   );
 }

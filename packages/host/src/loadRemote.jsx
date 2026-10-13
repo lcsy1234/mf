@@ -47,6 +47,7 @@ async function initRemoteContainer(scope) {
     // eslint-disable-next-line no-undef
     await __webpack_init_sharing__('default');
     const container = window[scope];
+    console.log('container', container);
     // eslint-disable-next-line no-undef
     await container.init(__webpack_share_scopes__.default);
     return container;
@@ -56,11 +57,11 @@ async function initRemoteContainer(scope) {
   return promise;
 }
 
-async function loadRemoteModule({ url, scope, module }) {
-  await loadRemoteEntry(url, scope);// 加载远程入口文件
-  const container = await initRemoteContainer(scope);// 初始化远程容器
-  const factory = await container.get(module);// 获取远程模块
-  return factory();// 返回远程模块
+export async function loadRemoteModule({ url, scope, module }) {
+  await loadRemoteEntry(url, scope); // 加载远程入口文件
+  const container = await initRemoteContainer(scope); // 初始化远程容器
+  const factory = await container.get(module); // 获取远程模块
+  return factory(); // 返回远程模块
 }
 
 export function loadRemoteWidget(key) {
@@ -68,10 +69,22 @@ export function loadRemoteWidget(key) {
   if (!remote) {
     throw new Error(`未知 remote: ${key}`);
   }
-// 动态加载远程模块
   return React.lazy(() =>
     loadRemoteModule(remote).then((mod) => ({
       default: mod.default || mod,
     })),
   );
+}
+
+/** 加载 Remote 暴露的任意模块（如 ./hostMenus） */
+export async function loadRemoteExport(remoteKey, modulePath) {
+  const remote = getRemote(remoteKey);
+  if (!remote) {
+    throw new Error(`未知 remote: ${remoteKey}`);
+  }
+  return loadRemoteModule({
+    url: remote.url,
+    scope: remote.scope,
+    module: modulePath,
+  });
 }

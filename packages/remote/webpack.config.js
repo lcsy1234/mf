@@ -21,6 +21,14 @@ const shared = {
     singleton: true,
     requiredVersion: deps.react,
   },
+  // 与 Host 共用 Router，嵌入 /remote-a/* 时用相对路由切换页面
+  'react-router-dom': {
+    singleton: true,
+    requiredVersion: deps['react-router-dom'],
+  },
+  'react-router': {
+    singleton: true,
+  },
 };
 
 module.exports = {
@@ -51,6 +59,8 @@ module.exports = {
       filename: 'remoteEntry.js',
       exposes: {
         './Widget': './src/Widget.jsx',
+        // Host 顶栏菜单由 Remote 贡献（Remote A 子菜单：任务记录 / 模版）
+        './hostMenus': './src/hostMenus.js',
       },
       shared,
     }),

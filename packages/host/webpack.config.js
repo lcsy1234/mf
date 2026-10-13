@@ -25,6 +25,16 @@ const shared = {
     requiredVersion: deps.react,
     eager: true,
   },
+  // 与 Remote 共用同一份 Router，嵌套路由才能继承 Host 的 BrowserRouter
+  'react-router-dom': {
+    singleton: true,
+    requiredVersion: deps['react-router-dom'],
+    eager: true,
+  },
+  'react-router': {
+    singleton: true,
+    eager: true,
+  },
 };
 
 module.exports = {
